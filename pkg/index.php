@@ -63,6 +63,8 @@ class Pkg
     public function run() {
         if (!empty($_REQUEST['updateall'])) {
             echo "<pre>";
+            $this->updObj->removeCache();
+            $this->msg("Try update all ...\n");
             $this->updObj->update();
         } else {
             $changesArr = $this->updObj->lookForDifferences();
