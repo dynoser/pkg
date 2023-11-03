@@ -69,7 +69,8 @@ class Pkg
             echo "<pre>";
             $this->updObj->removeCache();
             $this->msg("Try update all ...\n");
-            $this->updObj->update();
+            $updatedResultsArr = $this->updObj->update();
+            print_r($updatedResultsArr);
         } else {
             $changesArr = $this->updObj->lookForDifferences();
             print_r($changesArr);
