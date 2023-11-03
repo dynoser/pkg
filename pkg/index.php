@@ -72,6 +72,7 @@ class Pkg
             $updatedResultsArr = $this->updObj->update();
             print_r($updatedResultsArr);
         } else {
+            echo "<pre>";
             $changesArr = $this->updObj->lookForDifferences();
             print_r($changesArr);
         }
