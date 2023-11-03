@@ -1,7 +1,10 @@
 <?php
 namespace dynoser\webtools;
 
-class Pkg {
+class Pkg
+{
+    public $updObj = null;
+
     public function __construct($rootDir = '') {
         // scan vendorDir
         $vendorDir = \defined('VENDOR_DIR') ? \constant('VENDOR_DIR') : '';
@@ -53,12 +56,18 @@ class Pkg {
         if (empty($chkFile) || !\defined('DYNO_FILE')) {
             die("Dynoser-autoloader not found, cannot continue (since this script is a dynoser-autoloader module)");
         }
+
+        $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, true);
     }
     
     public function run() {
-        $updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, true);
-        $changesArr = $updObj->lookForDifferences();
-        print_r($changesArr);
+        if (!empty($_REQUEST['updateall'])) {
+            echo "<pre>";
+            $this->updObj->update();
+        } else {
+            $changesArr = $this->updObj->lookForDifferences();
+            print_r($changesArr);
+        }
     }
 }
 
