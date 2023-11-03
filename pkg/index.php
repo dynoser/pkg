@@ -60,6 +60,10 @@ class Pkg
         $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, true);
     }
     
+    public function msg($msg) {
+        $this->updObj->msg($msg);
+    }
+
     public function run() {
         if (!empty($_REQUEST['updateall'])) {
             echo "<pre>";
