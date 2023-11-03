@@ -71,10 +71,15 @@ class Pkg
             $this->msg("Try update all ...\n");
             $updatedResultsArr = $this->updObj->update();
             print_r($updatedResultsArr);
-        } else {
+        } elseif (!empty($_REQUEST['diff'])) {
             echo "<pre>";
             $changesArr = $this->updObj->lookForDifferences();
             print_r($changesArr);
+        } else {
+            echo "<pre>";
+            $allNSInstalledArr = $this->updObj->getAllNSInstalledArr();
+            echo "All Installed:";
+            print_r($allNSInstalledArr);
         }
     }
 }
