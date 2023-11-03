@@ -78,8 +78,11 @@ class Pkg
         } else {
             echo "<pre>";
             $allNSInstalledArr = $this->updObj->getAllNSInstalledArr();
-            echo "All Installed:";
-            print_r($allNSInstalledArr);
+            echo "All Installed packages: <ul>";
+            foreach($allNSInstalledArr as $nameSpace => $filesArr) {
+                echo "<li>" . $nameSpace . " => " . \count($filesArr) . " files\n";
+            }
+            echo "</ul>";
         }
     }
 }
