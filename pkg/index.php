@@ -33,6 +33,14 @@ class Pkg
                     }
                 }
                 \define('ROOT_DIR', \dirname($myOwnDir));
+                $nsmupdDevDir = \dirname(ROOT_DIR) . '/nsmupdate/src';
+                if (\is_dir($nsmupdDevDir)) {
+                    foreach(\scandir($nsmupdDevDir) as $fileShort) {
+                        if ($fileShort[0] === '.') continue;
+                        include_once $nsmupdDevDir . '/' . $fileShort;
+                    }
+                }
+                
                 require_once $chkFile;
             }
         }
@@ -77,12 +85,24 @@ class Pkg
             print_r($changesArr);
         } else {
             echo "<pre>";
-            $allNSInstalledArr = $this->updObj->getAllNSInstalledArr();
-            echo "All Installed packages: <ul>";
-            foreach($allNSInstalledArr as $nameSpace => $filesArr) {
-                echo "<li>" . $nameSpace . " => " . \count($filesArr) . " files\n";
+//            $allNSInstalledArr = $this->updObj->getAllNSInstalledArr();
+            $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+            echo "All Installed packages:\n<ul>\n";
+            foreach($allNSKnownArr as $nameSpace => $filesArr) {
+                if (\is_array($filesArr)) {
+                    echo "<li>" . $nameSpace . " => " . \count($filesArr) . " files\n";
+                }
+            }
+            echo "</ul>\n";
+            
+            echo "\n<hr>\nAll availabled packages (not installed):\n<ul>\n";
+            foreach($allNSKnownArr as $nameSpace => $filesArr) {
+                if (!\is_array($filesArr)) {
+                    echo "<li>" . $nameSpace . "\n";
+                }
             }
             echo "</ul>";
+
         }
     }
 }
