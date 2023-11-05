@@ -93,14 +93,14 @@ class Pkg
             try {
                 $res = AutoLoader::autoLoad($classFullName, false);
                 if ($res) {
-                    if (\substr($classFullName, -4) === 'Test') {
-                        echo "unknown result\n";
-                    } else {
-                        echo "OK\n";
-                        echo "Class file: $res\n";
-                    }
+                    echo "OK\n";
+                    echo "Class file: $res\n";
                 } else {
-                    echo "Not found\n";
+                    if (\substr($classFullName, -4) === 'Test') {
+                        echo "(unknown result)\n";
+                    } else {
+                        echo "Not found\n";
+                    }
                 }
     
             } catch (\Throwable $e) {
@@ -109,10 +109,6 @@ class Pkg
             } finally {
                 echo "</pre>";
             }
-        } elseif (!empty($_REQUEST['remove'])) {
-            $removeClass = $_REQUEST['remove'];
-            $classFullName = \trim(\strtr($removeClass, '/', '\\'), '\\ ');
-            echo "<pre>Try remove class: $removeClass ... (break)\n";            
         }
         if (!empty($_REQUEST['updateall'])) {
             echo "<pre>";
@@ -122,6 +118,26 @@ class Pkg
             print_r($updatedResultsArr);        
         } else {
             $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+            
+             if (!empty($_REQUEST['remove'])) {
+                $removeNameSpace = $_REQUEST['remove'];
+                echo "<pre>Try remove package: $removeNameSpace... ";
+                $filesArr = $allNSKnownArr[$removeNameSpace] ?? null;
+                if (!\is_array($filesArr)) {
+                    echo "Not installed\n";
+                } else {
+                    echo "Files:\n";
+                    foreach($filesArr as $fileFull) {
+                        if (\unlink($fileFull)) {
+                            echo " - $fileFull removed\n";
+                        }
+                    }
+                    echo "Package '$removeNameSpace' removed\n";
+                }
+                echo "</pre>\n";
+                $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+            }
+
             echo "All Installed packages:\n<table>\n";
             foreach($allNSKnownArr as $nameSpace => $filesArr) {
                 if (\is_array($filesArr)) {
