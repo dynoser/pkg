@@ -1,6 +1,8 @@
 <?php
 namespace dynoser\webtools;
 
+use dynoser\autoload\AutoLoader;
+
 class Pkg
 {
     public $updObj = null;
@@ -73,17 +75,30 @@ class Pkg
     }
 
     public function run() {
+        if (!empty($_REQUEST['removecache'])) {
+            echo "<pre>Remove cache:\n";
+            $this->updObj->removeCache();
+            echo "</pre>";
+        }
         if (!empty($_REQUEST['install'])) {
             $instClass = $_REQUEST['install'];
-            $classFullName = \trim(\strtr($instClass, '/', '\\'), '\\ ');
+            
+            if (\strpos($instClass, '/')) {
+                // namespace + \Test
+                $classFullName = \trim(\strtr($instClass, '/', '\\'), '\\ ') . '\\Test';
+            }
 
             echo "<pre>Try install class: '$classFullName' ... ";
             
             try {
                 $res = AutoLoader::autoLoad($classFullName, false);
                 if ($res) {
-                    echo "OK\n";
-                    echo "Class file: $res\n";
+                    if (\substr($classFullName, -4) === 'Test') {
+                        echo "unknown result\n";
+                    } else {
+                        echo "OK\n";
+                        echo "Class file: $res\n";
+                    }
                 } else {
                     echo "Not found\n";
                 }
@@ -104,13 +119,13 @@ class Pkg
             //$this->updObj->removeCache();
             $this->msg("Try update all ...\n");
             $updatedResultsArr = $this->updObj->update();
-            print_r($updatedResultsArr);
+            print_r($updatedResultsArr);        
         } else {
             $allNSKnownArr = $this->updObj->getAllNSKnownArr();
             echo "All Installed packages:\n<table>\n";
             foreach($allNSKnownArr as $nameSpace => $filesArr) {
                 if (\is_array($filesArr)) {
-                    echo '<tr><td><a href="?remove=' . \urlencode($nameSpace) . '">+</a></td>'
+                    echo '<tr><td><a href="?remove=' . \urlencode($nameSpace) . '">x</a></td>'
                             .'<td>' . $nameSpace . "</td>"
                             .'<td>' . \count($filesArr) . "</td></tr>\n";
                 }
