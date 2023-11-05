@@ -57,7 +57,7 @@ class Pkg
             die("Dynoser-autoloader not found, cannot continue (since this script is a dynoser-autoloader module)");
         }
 
-        $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, true);
+        $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, false);
     }
     
     public function msg($msg) {
