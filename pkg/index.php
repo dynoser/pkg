@@ -73,35 +73,61 @@ class Pkg
     }
 
     public function run() {
+        if (!empty($_REQUEST['install'])) {
+            $instClass = $_REQUEST['install'];
+            $classFullName = \trim(\strtr($instClass, '/', '\\'), '\\ ');
+
+            echo "<pre>Try install class: '$classFullName' ... ";
+            
+            try {
+                $res = AutoLoader::autoLoad($classFullName, false);
+                if ($res) {
+                    echo "OK\n";
+                    echo "Class file: $res\n";
+                } else {
+                    echo "Not found\n";
+                }
+    
+            } catch (\Throwable $e) {
+                $error = $e->getMessage();
+                echo "\\Exception: $error \n";
+            } finally {
+                echo "</pre>";
+            }
+        } elseif (!empty($_REQUEST['remove'])) {
+            $removeClass = $_REQUEST['remove'];
+            $classFullName = \trim(\strtr($removeClass, '/', '\\'), '\\ ');
+            echo "<pre>Try remove class: $removeClass ... (break)\n";            
+        }
         if (!empty($_REQUEST['updateall'])) {
             echo "<pre>";
-            $this->updObj->removeCache();
+            //$this->updObj->removeCache();
             $this->msg("Try update all ...\n");
             $updatedResultsArr = $this->updObj->update();
             print_r($updatedResultsArr);
-        } elseif (!empty($_REQUEST['diff'])) {
+        } else {
+            $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+            echo "All Installed packages:\n<table>\n";
+            foreach($allNSKnownArr as $nameSpace => $filesArr) {
+                if (\is_array($filesArr)) {
+                    echo '<tr><td><a href="?remove=' . \urlencode($nameSpace) . '">+</a></td>'
+                            .'<td>' . $nameSpace . "</td>"
+                            .'<td>' . \count($filesArr) . "</td></tr>\n";
+                }
+            }
+            echo "</table>\n";
+            
+            echo "\n<hr>\nAll availabled packages (not installed):\n<table>\n";
+            foreach($allNSKnownArr as $nameSpace => $filesArr) {
+                if (!\is_array($filesArr)) {
+                    echo '<tr><td><a href="?install=' . \urlencode($nameSpace) . '">+</a></td><td>' . $nameSpace . "</td></tr>\n";
+                }
+            }
+            echo "</table>";
+
             echo "<pre>";
             $changesArr = $this->updObj->lookForDifferences();
             print_r($changesArr);
-        } else {
-            echo "<pre>";
-//            $allNSInstalledArr = $this->updObj->getAllNSInstalledArr();
-            $allNSKnownArr = $this->updObj->getAllNSKnownArr();
-            echo "All Installed packages:\n<ul>\n";
-            foreach($allNSKnownArr as $nameSpace => $filesArr) {
-                if (\is_array($filesArr)) {
-                    echo "<li>" . $nameSpace . " => " . \count($filesArr) . " files\n";
-                }
-            }
-            echo "</ul>\n";
-            
-            echo "\n<hr>\nAll availabled packages (not installed):\n<ul>\n";
-            foreach($allNSKnownArr as $nameSpace => $filesArr) {
-                if (!\is_array($filesArr)) {
-                    echo "<li>" . $nameSpace . "\n";
-                }
-            }
-            echo "</ul>";
 
         }
     }
