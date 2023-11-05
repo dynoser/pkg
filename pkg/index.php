@@ -86,6 +86,8 @@ class Pkg
             if (\strpos($instClass, '/')) {
                 // namespace + \Test
                 $classFullName = \trim(\strtr($instClass, '/', '\\'), '\\ ') . '\\Test';
+            } else {
+                $classFullName = $instClass;
             }
 
             echo "<pre>Try install class: '$classFullName' ... ";
