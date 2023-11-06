@@ -20,10 +20,17 @@ class Pkg
         return true;
     }
     public function __construct($rootDir = '') {
+        $myOwnDir = \strtr(__DIR__ , '\\', '/');
+
         // scan vendorDir
         $vendorDir = \defined('VENDOR_DIR') ? \constant('VENDOR_DIR') : '';
-        $myOwnDir = \strtr(__DIR__ , '\\', '/');
-        $nextChkDir = $myOwnDir . '/vendor';
+        if ($rootDir && !$vendorDir && \is_dir($rootDir . '/vendor') && !\defined('ROOT_DIR')) {
+            \define('ROOT_DIR',  \strtr($rootDir, '\\', '/'));
+            $nextChkDir = ROOT_DIR . '/vendor';
+            \define('VENDOR_DIR', $nextChkDir);
+        } else {
+            $nextChkDir = $myOwnDir . '/vendor';
+        }
         do {
             $chkDir = $nextChkDir;
             if (\is_dir($chkDir)) {
@@ -34,8 +41,8 @@ class Pkg
         } while (\strlen($nextChkDir) < \strlen($chkDir));
         if (\substr($myOwnDir, -7) === 'pkg/pkg') {
             // developer mode ON
-            $chkFile = \substr($myOwnDir, 0, -7) . 'autoload/autoload.php';
-            if (\is_file($chkFile)) {
+            $autoLoadFile = \substr($myOwnDir, 0, -7) . 'autoload/autoload.php';
+            if (\is_file($autoLoadFile)) {
                 if (!\defined('VENDOR_DIR')) {
                     $vendorDir = $myOwnDir . '/vendor';
                     \define('VENDOR_DIR', $vendorDir);
@@ -46,16 +53,23 @@ class Pkg
                         \define('STORAGE_DIR', $vendorDir . '/cache');
                     }
                 }
-                \define('ROOT_DIR', \dirname($myOwnDir));
-                $nsmupdDevDir = \dirname(ROOT_DIR) . '/nsmupdate/src';
-                if (\is_dir($nsmupdDevDir)) {
-                    foreach(\scandir($nsmupdDevDir) as $fileShort) {
-                        if ($fileShort[0] === '.') continue;
-                        include_once $nsmupdDevDir . '/' . $fileShort;
+                if (!defined('ROOT_DIR')) {
+                    \define('ROOT_DIR', \dirname($myOwnDir));
+                }
+                foreach([
+                    \dirname(ROOT_DIR) . '/nsmupdate/src',
+                    \constant('VENDOR_DIR') . '/dynoser/nsmupdate/src',
+                ] as $nsmupdDevDir) {
+                    if (\is_dir($nsmupdDevDir)) {
+                        foreach(\scandir($nsmupdDevDir) as $fileShort) {
+                            if ($fileShort[0] === '.') continue;
+                            include_once $nsmupdDevDir . '/' . $fileShort;
+                        }
+                        break;
                     }
                 }
                 
-                require_once $chkFile;
+                require_once $autoLoadFile;
             }
         }
 
@@ -134,11 +148,11 @@ class Pkg
             if ($updatedResultsArr) {
                 echo "<ul>\n";
                 foreach($updatedResultsArr as $nameSpace => $filesArr) {
-                    echo "<li>$nameSpace:<ol>";
+                    echo "<li>$nameSpace:<ul>";
                     foreach($filesArr as $fileName => $targetArr) {
                         echo "  <li>$fileName => " . $targetArr[1] . "\n";
                     }
-                    echo "</ol>\n";
+                    echo "</ul>\n";
                 }
                 echo "</ul>\n";
             } else {
@@ -204,8 +218,8 @@ class Pkg
 
         echo "<pre>";
         $changesArr = $this->updObj->lookForDifferences();
-        print_r($changesArr);
         if ($changesArr) {
+            print_r($changesArr);
             $nsChangedArr = [];
             echo "<hr>\Changes:";
             foreach($changesArr['modifiedFilesArr'] as $fileFullName => $verArr) {
@@ -235,6 +249,6 @@ class Pkg
 
 if (!\defined('DYNO_FILE')) {
     // called from web
-    $myObj = new Pkg();
+    $myObj = new Pkg(\getcwd());
     $myObj->run();
 }
