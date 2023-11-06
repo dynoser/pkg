@@ -99,8 +99,12 @@ class Pkg
     public function msg($msg) {
         $this->updObj->msg($msg);
     }
-
-    public function run() {
+    
+    public function openPage() {
+        header("Content-Type: text/html; charset=UTF-8");
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
         echo <<<HTMLOPEN
 <!DOCTYPE html>
 <html>
@@ -127,6 +131,13 @@ class Pkg
         [ <a href="/pkg/?removecache=1">Remove Cache</a> ]
     </div>
 HTMLOPEN;
+    }
+            
+    public function closePage() {
+        echo '</body></html>';
+    }
+
+    public function run() {
         if (!empty($_REQUEST['removecache'])) {
             echo "<pre>Remove cache:\n";
             $this->updObj->removeCache();
@@ -320,12 +331,6 @@ HTMLOPEN;
             echo "</form>";
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
-        
-        echo <<<HTMLCLOSE
-    <hr/><h3><a href="/pkg/">(Refresh)</a></h3>
-</body>
-</html>
-HTMLCLOSE;
     }
 
     public static $passArr = [
@@ -380,5 +385,7 @@ if (!\defined('DYNO_FILE')) {
     // called from web
     $myObj = new Pkg(\getcwd());
     $myObj->authCheck();
+    $myObj->openPage();
     $myObj->run();
+    $myObj->closePage();
 }
