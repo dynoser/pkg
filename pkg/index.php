@@ -246,12 +246,12 @@ HTMLOPEN;
         echo "\n<hr>\n";
         echo '<h4><font color="black">Availabled packages (not installed):</font></h4>' 
             . "\n" 
-            . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#efe">'
+            . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#fff">'
             . "\n";
         //echo '<h4><font color="black">Availabled packages (not installed):</font></h4>'. "\n<table>\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (!\is_array($filesArr)) {
-                echo '<tr><td><a href="?install=' . \urlencode($nameSpace) . '">+</a></td><td>' . $nameSpace . "</td></tr>\n";
+                echo '<tr><td><a href="?install=' . \urlencode($nameSpace) . '">ins</a></td><td>' . $nameSpace . "</td></tr>\n";
             }
         }
         echo "</table>";
