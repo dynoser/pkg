@@ -13,7 +13,7 @@ class Pkg
             'dynoser/autoload',
             'dynoser/webtools/Pkg',
         ] as $restrictedNS) {
-            if (\substr($chk, 0, \strlen($restrictedNS)) === $restrictedNS) {
+            if ($chk === $restrictedNS) {
                 return false;
             }
         }
@@ -250,6 +250,8 @@ class Pkg
             
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
+        
+        echo '<hr/><h3><a href="#">(Refresh)</a></h3>';
     }
 }
 
