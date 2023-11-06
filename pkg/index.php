@@ -114,14 +114,17 @@ class Pkg
         .header-container h3 {
             margin-right: 10px;
         }
+        .header-container a {
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="header-container">
         <h3>Package Manager</h3>
-        [<a href="/pkg/">Refresh</a>]
-        [<a href="/pkg/?updateall=1">Update All</a>]
-        [<a href="/pkg/?removecache=1">Remove Cache</a>]
+        [ <a href="/pkg/">Refresh</a> ]
+        [ <a href="/pkg/?updateall=1">Update All</a> ]
+        [ <a href="/pkg/?removecache=1">Remove Cache</a> ]
     </div>
 HTMLOPEN;
         if (!empty($_REQUEST['removecache'])) {
