@@ -117,59 +117,61 @@ class Pkg
             //$this->updObj->removeCache();
             $this->msg("Try update all ...\n");
             $updatedResultsArr = $this->updObj->update();
-            print_r($updatedResultsArr);        
-        } else {
+            print_r($updatedResultsArr);    
+            echo "</pre>";
+        }
+        $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+
+         if (empty($_REQUEST['remove'])) {
+            $removeNameSpace = '';
+         } else {
+            $removeNameSpace = $_REQUEST['remove'];
+            echo "<pre>Try remove package: $removeNameSpace... ";
+            $filesArr = $allNSKnownArr[$removeNameSpace] ?? null;
+            if (!\is_array($filesArr)) {
+                echo "Not installed\n";
+            } else {
+                echo "Files:\n";
+                foreach($filesArr as $fileFull) {
+                    if (\unlink($fileFull)) {
+                        echo " - $fileFull removed\n";
+                    }
+                }
+                echo "Package '$removeNameSpace' removed\n";
+            }
+            echo "</pre>\n";
             $allNSKnownArr = $this->updObj->getAllNSKnownArr();
-            
-             if (empty($_REQUEST['remove'])) {
-                $removeNameSpace = '';
-             } else {
-                $removeNameSpace = $_REQUEST['remove'];
-                echo "<pre>Try remove package: $removeNameSpace... ";
-                $filesArr = $allNSKnownArr[$removeNameSpace] ?? null;
-                if (!\is_array($filesArr)) {
-                    echo "Not installed\n";
+        }
+
+        echo "All Installed packages:\n<table>\n";
+        foreach($allNSKnownArr as $nameSpace => $filesArr) {
+            if (\is_array($filesArr)) {
+                echo '<tr><td>[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]</td>';
+                echo '<td>';
+                if ($removeNameSpace === $nameSpace) {
+                    echo "<s>$nameSpace</s>";
                 } else {
-                    echo "Files:\n";
-                    foreach($filesArr as $fileFull) {
-                        if (\unlink($fileFull)) {
-                            echo " - $fileFull removed\n";
-                        }
-                    }
-                    echo "Package '$removeNameSpace' removed\n";
+                    echo $nameSpace;
                 }
-                echo "</pre>\n";
-                $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+                echo '</td>';
+                echo '<td>' . \count($filesArr) . "</td></tr>\n";
             }
+        }
+        echo "</table>\n";
 
-            echo "All Installed packages:\n<table>\n";
-            foreach($allNSKnownArr as $nameSpace => $filesArr) {
-                if (\is_array($filesArr)) {
-                    echo '<tr><td>[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]</td>';
-                    echo '<td>';
-                    if ($removeNameSpace === $nameSpace) {
-                        echo "<s>$nameSpace</s>";
-                    } else {
-                        echo $nameSpace;
-                    }
-                    echo '</td>';
-                    echo '<td>' . \count($filesArr) . "</td></tr>\n";
-                }
+        echo "\n<hr>\nAll availabled packages (not installed):\n<table>\n";
+        foreach($allNSKnownArr as $nameSpace => $filesArr) {
+            if (!\is_array($filesArr)) {
+                echo '<tr><td>[<a href="?install=' . \urlencode($nameSpace) . '">install</a>]</td><td>' . $nameSpace . "</td></tr>\n";
             }
-            echo "</table>\n";
-            
-            echo "\n<hr>\nAll availabled packages (not installed):\n<table>\n";
-            foreach($allNSKnownArr as $nameSpace => $filesArr) {
-                if (!\is_array($filesArr)) {
-                    echo '<tr><td>[<a href="?install=' . \urlencode($nameSpace) . '">install</a>]</td><td>' . $nameSpace . "</td></tr>\n";
-                }
-            }
-            echo "</table>";
+        }
+        echo "</table>";
 
-            echo "<pre>";
-            $changesArr = $this->updObj->lookForDifferences();
-            print_r($changesArr);
-
+        echo "<pre>";
+        $changesArr = $this->updObj->lookForDifferences();
+        print_r($changesArr);
+        if ($changesArr) {
+            echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
     }
 }
