@@ -324,10 +324,11 @@ HTMLOPEN;
             foreach($nsChangedArr as $nameSpace => $filesArr) {
                 echo "<li><h4><font color=\"green\">$nameSpace</font></h4><ul>\n";
                 foreach($filesArr as $fileFullName => $actHashHex) {
-                    $act = explode(" ", $actHashHex);
+                    $act = \explode(" ", $actHashHex);
+                    $shortFileName = \substr($fileFullName, \strlen(ROOT_DIR));
                     $hashHex = $act[1];
                     $act = $act[0];
-                    echo "<li><input type='checkbox' name='selectedFiles[]' value='$hashHex'> $fileFullName => $actHashHex</li>\n";
+                    echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'> $shortFileName => $hashHex</li>\n";
                 }
                 echo "</ul>\n";
             }
