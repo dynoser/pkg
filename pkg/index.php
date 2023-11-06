@@ -11,6 +11,8 @@ class Pkg
     ];
     public $passIsOk = false;
     public $updObj = null;
+    
+    public $rootDir = '';
 
     public function canRemoveNS($nameSpace) {
         $chk = strtr($nameSpace, '\\', '/');
@@ -94,6 +96,7 @@ class Pkg
                 }
             }
         }
+        $this->rootDir = $rootDir;
         if (empty($chkFile) || !\defined('DYNO_FILE')) {
             die("Dynoser-autoloader not found, cannot continue (since this script is a dynoser-autoloader module)");
         }
@@ -321,11 +324,12 @@ HTMLOPEN;
             }
             echo '<form action="" method="post">';
             echo "<ul>";
+            $rootLen = \strlen($this->rootDir);
             foreach($nsChangedArr as $nameSpace => $filesArr) {
                 echo "<li><h4><font color=\"green\">$nameSpace</font></h4><ul>\n";
                 foreach($filesArr as $fileFullName => $actHashHex) {
                     $act = \explode(" ", $actHashHex);
-                    $shortFileName = \substr($fileFullName, \strlen(ROOT_DIR));
+                    $shortFileName = \substr($fileFullName, $rootLen);
                     $hashHex = $act[1];
                     $act = $act[0];
                     echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'> $shortFileName => $hashHex</li>\n";
