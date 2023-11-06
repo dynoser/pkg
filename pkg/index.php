@@ -101,6 +101,8 @@ class Pkg
     }
 
     public function run() {
+        echo "<h2>Package management</h2>\n";
+        echo '<h3><a href="/pkg/">(Refresh)</a>';
         if (!empty($_REQUEST['removecache'])) {
             echo "<pre>Remove cache:\n";
             $this->updObj->removeCache();
