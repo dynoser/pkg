@@ -213,7 +213,10 @@ HTMLOPEN;
             }
         }
 
-        echo '<h4><font color="green">All Installed packages:</font></h4>' . "\n<table>\n";
+        echo '<h4><font color="green">All Installed packages:</font></h4>' 
+            . "\n" 
+            . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#eee">'
+            . "\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (\is_array($filesArr)) {
                 $canRemove = $this->canRemoveNS($nameSpace);
@@ -222,7 +225,7 @@ HTMLOPEN;
                 }
                 echo '<tr><td>';
                 if ($canRemove) {
-                    echo '[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]';
+                    echo '<a href="?remove=' . \urlencode($nameSpace) . '">del</a>';
                 }
                 echo '</td><td>';
                 if ($removeNameSpace === $nameSpace) {
