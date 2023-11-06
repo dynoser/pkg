@@ -247,7 +247,7 @@ HTMLOPEN;
             }
         }
 
-        echo '<h4><font color="green">All Installed packages:</font></h4>' 
+        echo '<h4><font color="green">Installed packages:</font></h4>' 
             . "\n" 
             . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#eee">'
             . "\n";
@@ -295,7 +295,7 @@ HTMLOPEN;
         if ($changesArr) {
             //print_r($changesArr);
             $nsChangedArr = [];
-            echo "<hr/>Can update:<br/>";
+            echo '<hr/><h4><font color="black">Updates:</font></h4>'. "\n" ;
             foreach($changesArr['modifiedFilesArr'] as $fileFullName => $verArr) {
                 foreach($verArr as $hashHex => $lenNSarr) {
                     foreach($lenNSarr as $len => $nameSpaceArr) {
@@ -329,7 +329,7 @@ HTMLOPEN;
             echo "</ul>";
             echo "<input type='submit' name='update' value='Update'>";
             echo "</form>";
-            echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
+            echo '<H3><a href="?updateall=1">Update ALL</a></H3>';
         }
     }
 
