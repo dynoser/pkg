@@ -298,10 +298,58 @@ HTMLOPEN;
 </html>
 HTMLCLOSE;
     }
+
+    public static $passArr = [
+        'test' => 'da8be698d805f74da997ac7ad381b5aaa76384c9e27f78ae5d5688be95e39d92',  //Nhkb
+    ];
+    public $passIsOk = false;
+    
+    public function authCheck() {
+        if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['passhash'])) {
+            $username = $_COOKIE['username'];
+            $passhash = $_COOKIE['passhash'];
+            if ($username && $passhash && !empty(self::$passArr[$username])) {
+                $this->passIsOk = ($passhash === self::$passArr[$username]);
+            }
+        }
+        if (!$this->passIsOk && ($_SERVER["REQUEST_METHOD"] === "POST")) {
+            $username = $_POST['username'] ?? '';
+            $enteredPassword = $_POST['password'] ?? '';
+            if ($username && $enteredPassword && !empty(self::$passArr[$username])) {
+                $enteredPasswordHash = \hash('sha256', $enteredPassword);
+                $this->passIsOk = ($enteredPasswordHash === self::$passArr[$username]);
+                if ($this->passIsOk) {
+                    \setcookie('username', $username, time() + 3600, "/");
+                    \setcookie('passhash', $enteredPasswordHash, time() + 3600, "/");
+                }
+            }
+        }
+        if (!$this->passIsOk) {
+            echo <<<PASSFORM
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Password check</title>
+</head>
+<body>
+    <form method="POST" action="">
+        <label for="username">username:</label>
+        <input type="text" name="username" id="username">
+        <label for="password">password:</label>
+        <input type="password" name="password" id="password">
+        <button type="submit">Check</button>
+    </form>
+</body>
+</html>
+PASSFORM;
+           die;
+        }
+    }
 }
 
 if (!\defined('DYNO_FILE')) {
     // called from web
     $myObj = new Pkg(\getcwd());
+    $myObj->authCheck();
     $myObj->run();
 }
