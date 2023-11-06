@@ -7,6 +7,18 @@ class Pkg
 {
     public $updObj = null;
 
+    public function canRemoveNS($nameSpace) {
+        $chk = strtr($nameSpace, '\\', '/');
+        foreach([
+            'dynoser/autoload',
+            'dynoser\webtools\Pkg',
+        ] as $restrictedNS) {
+            if (\substr($chk, 0, \strlen($restrictedNS)) === $restrictedNS) {
+                return false;
+            }
+        }
+        return true;
+    }
     public function __construct($rootDir = '') {
         // scan vendorDir
         $vendorDir = \defined('VENDOR_DIR') ? \constant('VENDOR_DIR') : '';
@@ -140,32 +152,41 @@ class Pkg
             $removeNameSpace = '';
          } else {
             $removeNameSpace = $_REQUEST['remove'];
-            echo "<pre>Try remove package: $removeNameSpace... ";
-            $filesArr = $allNSKnownArr[$removeNameSpace] ?? null;
-            if (!\is_array($filesArr)) {
-                echo "Not installed\n";
-            } else {
-                echo "Files:\n";
-                foreach($filesArr as $fileFull) {
-                    if (\unlink($fileFull)) {
-                        echo " - $fileFull removed\n";
+            if ($this->canRemoveNS($removeNameSpace)) {
+                echo "<pre>Try remove package: $removeNameSpace... ";
+                $filesArr = $allNSKnownArr[$removeNameSpace] ?? null;
+                if (!\is_array($filesArr)) {
+                    echo "Not installed\n";
+                } else {
+                    echo "Files:\n";
+                    foreach($filesArr as $fileFull) {
+                        if (\unlink($fileFull)) {
+                            echo " - $fileFull removed\n";
+                        }
                     }
+                    echo "Package '$removeNameSpace' removed\n";
                 }
-                echo "Package '$removeNameSpace' removed\n";
+                echo "</pre>\n";
+                $allNSKnownArr = $this->updObj->getAllNSKnownArr();
+            } else {
+                echo '<font color="red">Can not remove package "'. $removeNameSpace . '", its required for this script</font><hr>';
             }
-            echo "</pre>\n";
-            $allNSKnownArr = $this->updObj->getAllNSKnownArr();
         }
 
         echo "All Installed packages:\n<table>\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (\is_array($filesArr)) {
+                $canRemove = $this->canRemoveNS($nameSpace);
                 echo '<tr><td>[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]</td>';
                 echo '<td>';
                 if ($removeNameSpace === $nameSpace) {
                     echo "<s>$nameSpace</s>";
                 } else {
-                    echo $nameSpace;
+                    if ($canRemove) {
+                        echo $nameSpace;
+                    } else {
+                        echo "<b>$nameSpace</b>";
+                    }
                 }
                 echo '</td>';
                 echo '<td>' . \count($filesArr) . "</td></tr>\n";
