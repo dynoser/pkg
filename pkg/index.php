@@ -5,6 +5,11 @@ use dynoser\autoload\AutoLoader;
 
 class Pkg
 {
+    public static $passArr = [
+        //username => sha256(password)
+        'test'     => 'da8be698d805f74da997ac7ad381b5aaa76384c9e27f78ae5d5688be95e39d92',  //Nhkb
+    ];
+    public $passIsOk = false;
     public $updObj = null;
 
     public function canRemoveNS($nameSpace) {
@@ -181,12 +186,12 @@ HTMLOPEN;
             if (isset($_POST['update']) && isset($_POST['selectedFiles'])) {
                 $selectedFiles = $_POST['selectedFiles'];
                 if ($selectedFiles && \is_array($selectedFiles)) {
-                    echo "<pre>Selected for update:\n<ol>";
+                    $this->msg("<pre>Selected for update:\n<ol>");
                     foreach($selectedFiles as $hashHex) {
-                        echo "<li> $hashHex";
+                        $this->msg("<li> $hashHex");
                         $updateByHashesOnlyArr[$hashHex] = true;
                     }
-                    echo "</ol></pre>";
+                    $this->msg("</ol></pre>");
                 }
             }
         }
@@ -332,11 +337,6 @@ HTMLOPEN;
             echo '<H3><a href="?updateall=1">Update ALL</a></H3>';
         }
     }
-
-    public static $passArr = [
-        'test' => 'da8be698d805f74da997ac7ad381b5aaa76384c9e27f78ae5d5688be95e39d92',  //Nhkb
-    ];
-    public $passIsOk = false;
     
     public function authCheck() {
         if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['passhash'])) {
