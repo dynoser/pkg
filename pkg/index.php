@@ -96,7 +96,7 @@ class Pkg
                 }
             }
         }
-        $this->rootDir = $rootDir;
+        $this->rootDir = \defined('ROOT_DIR') ? ROOT_DIR : \dirname($vendorDir);
         if (empty($chkFile) || !\defined('DYNO_FILE')) {
             die("Dynoser-autoloader not found, cannot continue (since this script is a dynoser-autoloader module)");
         }
