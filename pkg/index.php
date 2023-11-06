@@ -101,6 +101,27 @@ class Pkg
     }
 
     public function run() {
+        echo <<<HTMLOPEN
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Package Manager</title>
+    <style>
+        .header-container {
+            display: flex;
+            align-items: center;
+        }
+        .header-container h1 {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Package Manager</h1>
+        <a href="/pkg/">Refresh</a>
+    </div>
+HTMLOPEN;
         echo "<h2>Package management</h2>\n";
         echo '<h3><a href="/pkg/">(Refresh)</a>';
         if (!empty($_REQUEST['removecache'])) {
@@ -261,7 +282,11 @@ class Pkg
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
         
-        echo '<hr/><h3><a href="/pkg/">(Refresh)</a></h3>';
+        echo <<<HTMLCLOSE
+    <hr/><h3><a href="/pkg/">(Refresh)</a></h3>
+</body>
+</html>
+        HTMLCLOSE;
     }
 }
 
