@@ -164,11 +164,34 @@ HTMLOPEN;
                 echo "</pre>";
             }
         }
-        if (!empty($_REQUEST['updateall'])) {
+
+        $updateByHashesOnlyArr = [];
+        if (!empty($_POST['update'])) {
+            if (isset($_POST['update']) && isset($_POST['selectedFiles'])) {
+                $selectedFiles = $_POST['selectedFiles'];
+                if ($selectedFiles && \is_array($selectedFiles)) {
+                    echo "<pre>Selected for update:\n<ol>";
+                    foreach($selectedFiles as $hashHex) {
+                        echo "<li> $hashHex";
+                        $updateByHashesOnlyArr[$hashHex] = true;
+                    }
+                    echo "</ol></pre>";
+                }
+            }
+        }
+        if (!empty($_REQUEST['updateall']) || $updateByHashesOnlyArr) {        
             echo "<pre>";
+            if (empty($updateByHashesOnlyArr) || !\is_array($updateByHashesOnlyArr)) {
+                die("UpdateAll temporary disabled, please go back and select each file for update");
+            }
             //$this->updObj->removeCache();
             $this->msg("Try update all ...\n");
-            $updatedResultsArr = $this->updObj->update();
+            $updatedResultsArr = $this->updObj->update(
+                [], //$onlyNSarr = [],
+                [], //$skipNSarr = [],
+                [], //$doNotUpdateFilesArr = [],
+                $updateByHashesOnlyArr
+            );
             echo "</pre>";
             echo "<h2>Update results:</h2>\n";
             if ($updatedResultsArr) {
@@ -266,7 +289,7 @@ HTMLOPEN;
                 foreach($verArr as $hashHex => $lenNSarr) {
                     foreach($lenNSarr as $len => $nameSpaceArr) {
                         foreach($nameSpaceArr as $nameSpace) {
-                            $nsChangedArr[$nameSpace][$fileFullName] = "UPD #" . $hashHex;
+                            $nsChangedArr[$nameSpace][$fileFullName] = "UPD " . $hashHex;
                         }
                     }
                 }
@@ -275,20 +298,26 @@ HTMLOPEN;
                 foreach($verArr as $hashHex => $lenNSarr) {
                     foreach($lenNSarr as $len => $nameSpaceArr) {
                         foreach($nameSpaceArr as $nameSpace) {
-                            $nsChangedArr[$nameSpace][$fileFullName] = "DEL #" . $hashHex;
+                            $nsChangedArr[$nameSpace][$fileFullName] = "ADD " . $hashHex;
                         }
                     }
                 }
             }
+            echo '<form action="" method="post">';
             echo "<ul>";
             foreach($nsChangedArr as $nameSpace => $filesArr) {
-                echo "<li><h4><font color=\"green\">$nameSpace</font><h4><ul>\n";
-                foreach($filesArr as $fileFullName => $hashHex) {
-                    echo "<li>$fileFullName => $hashHex \n";
+                echo "<li><h4><font color=\"green\">$nameSpace</font></h4><ul>\n";
+                foreach($filesArr as $fileFullName => $actHashHex) {
+                    $act = explode(" ", $actHashHex);
+                    $hashHex = $act[1];
+                    $act = $act[0];
+                    echo "<li><input type='checkbox' name='selectedFiles[]' value='$hashHex'> $fileFullName => $actHashHex</li>\n";
                 }
                 echo "</ul>\n";
             }
             echo "</ul>";
+            echo "<input type='submit' name='update' value='Update'>";
+            echo "</form>";
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
         
