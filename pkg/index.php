@@ -226,9 +226,9 @@ class Pkg
         echo "<pre>";
         $changesArr = $this->updObj->lookForDifferences();
         if ($changesArr) {
-            print_r($changesArr);
+            //print_r($changesArr);
             $nsChangedArr = [];
-            echo "<hr>\Changes:";
+            echo "<hr/>Can update:<br/>";
             foreach($changesArr['modifiedFilesArr'] as $fileFullName => $verArr) {
                 foreach($verArr as $hashHex => $lenNSarr) {
                     foreach($lenNSarr as $len => $nameSpaceArr) {
@@ -247,8 +247,15 @@ class Pkg
                     }
                 }
             }
-            print_r($nsChangedArr);
-            
+            echo "<ul>";
+            foreach($nsChangedArr as $nameSpace => $filesArr) {
+                echo "<li><h4><font color=\"green\">$nameSpace</font><h4><ul>\n";
+                foreach($filesArr as $fileFullName => $hashHex) {
+                    echo "<li>$fileFullName => $hashHex \n";
+                }
+                echo "</ul>\n";
+            }
+            echo "</ul>";
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
         
