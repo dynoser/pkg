@@ -11,7 +11,7 @@ class Pkg
         $chk = strtr($nameSpace, '\\', '/');
         foreach([
             'dynoser/autoload',
-            'dynoser\webtools\Pkg',
+            'dynoser/webtools/Pkg',
         ] as $restrictedNS) {
             if (\substr($chk, 0, \strlen($restrictedNS)) === $restrictedNS) {
                 return false;
@@ -191,8 +191,14 @@ class Pkg
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (\is_array($filesArr)) {
                 $canRemove = $this->canRemoveNS($nameSpace);
-                echo '<tr><td>[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]</td>';
-                echo '<td>';
+                if ($canRemove && $removeNameSpace === $nameSpace) {
+                    $canRemove = false;
+                }
+                echo '<tr><td>';
+                if ($canRemove) {
+                    echo '[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]';
+                }
+                echo '</td><td>';
                 if ($removeNameSpace === $nameSpace) {
                     echo "<s>$nameSpace</s>";
                 } else {
