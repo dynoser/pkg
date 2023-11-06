@@ -171,6 +171,24 @@ class Pkg
         $changesArr = $this->updObj->lookForDifferences();
         print_r($changesArr);
         if ($changesArr) {
+            $nsChangedArr = [];
+            echo "<hr>\Changes:";
+            foreach($changesArr['modifiedFilesArr'] as $fileName => $verArr) {
+                foreach($verArr as $hashHex => $lenNSarr) {
+                    foreach($lenNSarr as $len => $nameSpace) {
+                        $nsChangedArr[$nameSpace][$fileName] = "UPD #" . $hashHex;
+                    }
+                }
+            }
+            foreach($changesArr['notFoundFilesMapArr'] as $fileName => $verArr) {
+                foreach($verArr as $hashHex => $lenNSarr) {
+                    foreach($lenNSarr as $len => $nameSpace) {
+                        $nsChangedArr[$nameSpace][$fileName] = "DEL #" . $hashHex;
+                    }
+                }
+            }
+            print_r($nsChangedArr);
+            
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
     }
