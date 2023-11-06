@@ -118,12 +118,10 @@ class Pkg
 </head>
 <body>
     <div class="header-container">
-        <h1>Package Manager</h1>
-        <a href="/pkg/">Refresh</a>
+        <h3>Package Manager</h3>
+        [<a href="/pkg/">Refresh</a>]
     </div>
 HTMLOPEN;
-        echo "<h2>Package management</h2>\n";
-        echo '<h3><a href="/pkg/">(Refresh)</a>';
         if (!empty($_REQUEST['removecache'])) {
             echo "<pre>Remove cache:\n";
             $this->updObj->removeCache();
