@@ -143,7 +143,7 @@ class Pkg
             echo "All Installed packages:\n<table>\n";
             foreach($allNSKnownArr as $nameSpace => $filesArr) {
                 if (\is_array($filesArr)) {
-                    echo '<tr><td><a href="?remove=' . \urlencode($nameSpace) . '">x</a></td>'
+                    echo '<tr><td>[<a href="?remove=' . \urlencode($nameSpace) . '">del</a>]</td>'
                             .'<td>' . $nameSpace . "</td>"
                             .'<td>' . \count($filesArr) . "</td></tr>\n";
                 }
@@ -153,7 +153,7 @@ class Pkg
             echo "\n<hr>\nAll availabled packages (not installed):\n<table>\n";
             foreach($allNSKnownArr as $nameSpace => $filesArr) {
                 if (!\is_array($filesArr)) {
-                    echo '<tr><td><a href="?install=' . \urlencode($nameSpace) . '">+</a></td><td>' . $nameSpace . "</td></tr>\n";
+                    echo '<tr><td>[<a href="?install=' . \urlencode($nameSpace) . '">install</a>]</td><td>' . $nameSpace . "</td></tr>\n";
                 }
             }
             echo "</table>";
