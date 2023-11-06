@@ -187,17 +187,21 @@ class Pkg
         if ($changesArr) {
             $nsChangedArr = [];
             echo "<hr>\Changes:";
-            foreach($changesArr['modifiedFilesArr'] as $fileName => $verArr) {
+            foreach($changesArr['modifiedFilesArr'] as $fileFullName => $verArr) {
                 foreach($verArr as $hashHex => $lenNSarr) {
-                    foreach($lenNSarr as $len => $nameSpace) {
-                        $nsChangedArr[$nameSpace][$fileName] = "UPD #" . $hashHex;
+                    foreach($lenNSarr as $len => $nameSpaceArr) {
+                        foreach($nameSpaceArr as $nameSpace) {
+                            $nsChangedArr[$nameSpace][$fileFullName] = "UPD #" . $hashHex;
+                        }
                     }
                 }
             }
-            foreach($changesArr['notFoundFilesMapArr'] as $fileName => $verArr) {
+            foreach($changesArr['notFoundFilesMapArr'] as $fileFullName => $verArr) {
                 foreach($verArr as $hashHex => $lenNSarr) {
-                    foreach($lenNSarr as $len => $nameSpace) {
-                        $nsChangedArr[$nameSpace][$fileName] = "DEL #" . $hashHex;
+                    foreach($lenNSarr as $len => $nameSpaceArr) {
+                        foreach($nameSpaceArr as $nameSpace) {
+                            $nsChangedArr[$nameSpace][$fileFullName] = "DEL #" . $hashHex;
+                        }
                     }
                 }
             }
