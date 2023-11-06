@@ -246,7 +246,7 @@ HTMLOPEN;
         echo "\n<hr>\n";
         echo '<h4><font color="black">Availabled packages (not installed):</font></h4>' 
             . "\n" 
-            . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#eee">'
+            . '<table border="5" cellpadding="5" cellspacing="0" bordercolor="#efe">'
             . "\n";
         //echo '<h4><font color="black">Availabled packages (not installed):</font></h4>'. "\n<table>\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
