@@ -286,7 +286,7 @@ HTMLOPEN;
     <hr/><h3><a href="/pkg/">(Refresh)</a></h3>
 </body>
 </html>
-        HTMLCLOSE;
+HTMLCLOSE;
     }
 }
 

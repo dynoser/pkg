@@ -1,2 +1,2 @@
-hashsig: 84e872a7477a536aad359b3f08445758c66839dcd8818c1a26e7542f559f2995 ~ filescnt: 1 ~ hashalg: sha256 ~ signalg: ed25519 ~ pubkey: EkDohf20jN/9kXW/WL3ZXo245ggek9TiTWzzmBriMTU= ~ signature: u+IgUn+xIfj7AMmxFUYUvrnaKuTr/AQ0vuVc+7boo0mHwN13rZUFouyarP3DeX7GlvyL2Cl3wNKb/bw/wn2/Cw==
-pkg/index.php: 8c10c13f5b4a68e76324fd29fd1ea2264707766a2736371b9042d4ca83053442 20
+hashsig: 56c8f93e53827ce58ad8560fcc75a34a91d5f72d3f19825c7e860833f625bdfd ~ filescnt: 1 ~ hashalg: sha256 ~ signalg: ed25519 ~ pubkey: EkDohf20jN/9kXW/WL3ZXo245ggek9TiTWzzmBriMTU= ~ signature: 6MHevWa/nctN4CAoMLEpTNk9b9mzHjIUbwrxfQs9GsVMszSZP+FZ0WAEESNyN8TcKX2RQGExDUB+AIcKQ7uKAA==
+pkg/index.php: 832b8f52274321d3cfe31c5d0979c250d811bbbcd2ce4d7d38540821d1b1229b 20
