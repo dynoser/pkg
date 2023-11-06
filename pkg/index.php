@@ -117,7 +117,21 @@ class Pkg
             //$this->updObj->removeCache();
             $this->msg("Try update all ...\n");
             $updatedResultsArr = $this->updObj->update();
-            print_r($updatedResultsArr);    
+            echo "</pre>";
+            echo "<h2>Update results:</h2>\n";
+            if ($updatedResultsArr) {
+                echo "<ul>\n";
+                foreach($updatedResultsArr as $nameSpace => $filesArr) {
+                    echo "<li>$nameSpace:<ol>";
+                    foreach($filesArr as $fileName => $targetArr) {
+                        echo "  <li>$fileName => " . $targetArr[1] . "\n";
+                    }
+                    echo "</ol>\n";
+                }
+                echo "</ul>\n";
+            } else {
+                echo "<h4>No changes</h4>";
+            }
             echo "</pre>";
         }
         $allNSKnownArr = $this->updObj->getAllNSKnownArr();
