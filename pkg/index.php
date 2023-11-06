@@ -187,7 +187,7 @@ class Pkg
             }
         }
 
-        echo "All Installed packages:\n<table>\n";
+        echo '<h3><font color="green">All Installed packages:</font></h3>' . "\n<table>\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (\is_array($filesArr)) {
                 $canRemove = $this->canRemoveNS($nameSpace);
@@ -214,7 +214,8 @@ class Pkg
         }
         echo "</table>\n";
 
-        echo "\n<hr>\nAll availabled packages (not installed):\n<table>\n";
+        echo "\n<hr>\n";
+        echo '<h3><font color="blue">All availabled packages (not installed):</font></h3>'. "\n<table>\n";
         foreach($allNSKnownArr as $nameSpace => $filesArr) {
             if (!\is_array($filesArr)) {
                 echo '<tr><td>[<a href="?install=' . \urlencode($nameSpace) . '">install</a>]</td><td>' . $nameSpace . "</td></tr>\n";
@@ -251,7 +252,7 @@ class Pkg
             echo '<H2><a href="?updateall=1">Update ALL</a></H2>';
         }
         
-        echo '<hr/><h3><a href="#">(Refresh)</a></h3>';
+        echo '<hr/><h3><a href="/pkg/">(Refresh)</a></h3>';
     }
 }
 
