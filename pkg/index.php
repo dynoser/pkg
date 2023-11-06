@@ -111,7 +111,7 @@ class Pkg
             display: flex;
             align-items: center;
         }
-        .header-container h1 {
+        .header-container h3 {
             margin-right: 10px;
         }
     </style>
@@ -120,6 +120,8 @@ class Pkg
     <div class="header-container">
         <h3>Package Manager</h3>
         [<a href="/pkg/">Refresh</a>]
+        [<a href="/pkg/?updateall=1">Update All</a>]
+        [<a href="/pkg/?removecache=1">Remove Cache</a>]
     </div>
 HTMLOPEN;
         if (!empty($_REQUEST['removecache'])) {
