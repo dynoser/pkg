@@ -46,9 +46,18 @@ class Pkg
             }
             $nextChkDir = \rtrim(\dirname($chkDir, 2), '/\\') . '/vendor';
         } while (\strlen($nextChkDir) < \strlen($chkDir));
+
         if (\substr($myOwnDir, -7) === 'pkg/pkg') {
-            // developer mode ON
-            $autoLoadFile = \substr($myOwnDir, 0, -7) . 'autoload/autoload.php';
+            if (\substr($myOwnDir, -22) === 'vendor/dynoser/pkg/pkg') {
+                // composer mode ON
+                \define('ROOT_DIR', \substr($myOwnDir, 0, -23));
+                \define('VENDOR_DIR', \constant('ROOT_DIR') . '/vendor');
+                $autoLoadFile = \constant('VENDOR_DIR') . '/dynoser/autoload/autoload.php';
+            } else {
+                // developer mode ON
+                $autoLoadFile = \substr($myOwnDir, 0, -7) . 'autoload/autoload.php';
+            }
+    
             if (\is_file($autoLoadFile)) {
                 if (!\defined('VENDOR_DIR')) {
                     $vendorDir = $myOwnDir . '/vendor';
@@ -64,7 +73,7 @@ class Pkg
                     \define('ROOT_DIR', \dirname($myOwnDir));
                 }
                 foreach([
-                    \dirname(ROOT_DIR) . '/nsmupdate/src',
+                    \dirname(\constant('ROOT_DIR')) . '/nsmupdate/src',
                     \constant('VENDOR_DIR') . '/dynoser/nsmupdate/src',
                 ] as $nsmupdDevDir) {
                     if (\is_dir($nsmupdDevDir)) {

@@ -1,0 +1,6 @@
+{
+    "name": "dynoser/pkg",
+    "description": "Web instal/remove/update control",
+    "type": "library",
+    "version": "1.0.1"
+}
