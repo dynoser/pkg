@@ -375,7 +375,7 @@ HTMLOPEN;
     
     public function saveNewNSMapURLs() {
         if ($this->remoteNsMapURLs) {
-            $this->upObj->setRemoteNSMapURLs($this->remoteNsMapURLs);
+            $this->updObj->setRemoteNSMapURLs($this->remoteNsMapURLs);
         }
     }
 
@@ -391,7 +391,7 @@ HTMLOPEN;
         }
     }
     public function showNSMAPlinksEditor() {
-        echo '<table bgcolor="#ffcc00" cellpadding="0" cellspacing="0" border="5">';
+        echo '<table bgcolor="#ffcc00" cellpadding="5" cellspacing="0" border="1">';
         echo "<tr><td>\n";
         echo '<table bgcolor="#ffcc00" cellpadding="0" cellspacing="0" border="0">';
         echo "<tr><td><b>NsMap links:</b></td><td></td></tr>\n";
