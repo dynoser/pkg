@@ -8,6 +8,7 @@ class Pkg
     public static $passArr = [
         //username => sha256(password)
         'test'     => 'da8be698d805f74da997ac7ad381b5aaa76384c9e27f78ae5d5688be95e39d92',  //Nhkb
+        'max'      => '593d0b69b5445e9fc54a5a71e083cb9e7c111b3a84bc2823ba288a0ae8f37e08',
     ];
     public $passIsOk = false;
     public $updObj = null;
