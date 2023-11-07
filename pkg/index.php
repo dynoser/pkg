@@ -391,21 +391,21 @@ HTMLOPEN;
         }
     }
     public function showNSMAPlinksEditor() {
-        echo '<table bgcolor="#ffcc00" cellpadding="5" cellspacing="0" border="1">';
+        echo '<table bgcolor="#fff" cellpadding="5" cellspacing="0" border="1">';
         echo "<tr><td>\n";
-        echo '<table bgcolor="#ffcc00" cellpadding="0" cellspacing="0" border="0">';
+        echo '<table bgcolor="#fff" cellpadding="0" cellspacing="0" border="0">';
         echo "<tr><td><b>NsMap links:</b></td><td></td></tr>\n";
         foreach ($this->remoteNsMapURLs as $key => $link) {
             echo '<form method="post" action=""><tr>';
             echo '<td>' . $link . '</td>';
-            echo '<td><input type="hidden" name="selected_nsmap_link" value="' . $key . '">';
+            echo '<td align="right"><input type="hidden" name="selected_nsmap_link" value="' . $key . '">';
             echo '<input type="submit" name="delete_nsmap_link" value="Del"></td>';
             echo "</tr>";
             echo "</form>\n";
         }
         echo "<tr>";
         echo '<form method="post" action="">';
-        echo '<td><input type="text" size="100" name="new_nsmap_link" placeholder="Enter Link ...nsmap.hashsig.zip" required></td>';
+        echo '<td><input type="text" size="100" name="new_nsmap_link" placeholder="Enter Link .hashsig.zip" required></td>';
         echo '<td><input type="submit" name="add_nsmap_link" value="Add"></td>';
         echo "</form></tr>\n";
         echo "</table>\n";
