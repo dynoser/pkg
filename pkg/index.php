@@ -363,11 +363,13 @@ HTMLOPEN;
     // --- BEGIN OF NSMAP LINKS EDITOR ---    
     public function addNSMAPLink(string $newNSMAPlink) {
         $this->remoteNsMapURLs[] = $newNSMAPlink;
+        $this->saveNewNSMapURLs();
     }
 
-    public function deleteLink($index) {
+    public function deleteNSMAPLink($index) {
         if (isset($this->remoteNsMapURLs[$index])) {
             unset($this->remoteNsMapURLs[$index]);
+            $this->saveNewNSMapURLs();
         }
     }
     
@@ -390,21 +392,21 @@ HTMLOPEN;
     }
     public function showNSMAPlinksEditor() {
         echo "<h4>NsMap links:</h4>\n";
-        echo "<ul>\n";
+        echo "<table border=\"0\">\n";
         foreach ($this->remoteNsMapURLs as $key => $link) {
-            echo '<li><a href="' . $link . '">' . $link . "</a>\n";
-            echo '<form method="post" action="">';
-            echo '<input type="hidden" name="selected_nsmap_link" value="' . $key . '">';
-            echo '<input type="submit" name="delete_nsmap_link" value="Del">';
-            echo '</form>';
-            echo "</li>\n";
+            echo '<form method="post" action=""><tr>';
+            echo '<td><a href="' . $link . '">' . $link . "</a></td>";
+            echo '<td><input type="hidden" name="selected_nsmap_link" value="' . $key . '">';
+            echo '<input type="submit" name="delete_nsmap_link" value="Del"></td>';
+            echo "</tr>";
+            echo "</form>\n";
         }
-        echo "</ul>\n<br/>";
-        echo "Add:";
+        echo "<tr>";
         echo '<form method="post" action="">';
-        echo '<input type="text" name="new_nsmap_link" placeholder="Enter Link ...nsmap.hashsig.zip" required>';
-        echo '<input type="submit" name="add_nsmap_link" value="Add">';
-        echo "</form>\n";
+        echo '<td><input type="text" name="new_nsmap_link" placeholder="Enter Link ...nsmap.hashsig.zip" required></td>';
+        echo '<td><input type="submit" name="add_nsmap_link" value="Add"></td>';
+        echo "</form></tr>\n";
+        echo "</table>\n<br/>";
     }
     //  ---- END OF NSMAP LINKS EDITOR ---
     
