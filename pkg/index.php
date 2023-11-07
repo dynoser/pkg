@@ -13,6 +13,8 @@ class Pkg
     public $updObj = null;
     
     public $rootDir = '';
+    
+    public array $remoteNsMapURLs = [];
 
     public function canRemoveNS($nameSpace) {
         $chk = strtr($nameSpace, '\\', '/');
@@ -111,6 +113,8 @@ class Pkg
         }
 
         $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, false);
+        
+        $this->remoteNsMapURLs = $this->updObj->getRemoteNSMapURLs();
     }
     
     public function msg($msg) {
@@ -160,6 +164,10 @@ HTMLOPEN;
             $this->updObj->removeCache();
             echo "</pre>";
         }
+        
+        // ADD and REMOVE links in $this->nsMapURLsArr
+        $this->editNSMAPLinkRequests();
+
         if (!empty($_REQUEST['install'])) {
             $instClass = $_REQUEST['install'];
             
@@ -351,6 +359,54 @@ HTMLOPEN;
             echo '<H3><a href="?updateall=1">Update ALL</a></H3>';
         }
     }
+
+    // --- BEGIN OF NSMAP LINKS EDITOR ---    
+    public function addNSMAPLink(string $newNSMAPlink) {
+        $this->remoteNsMapURLs[] = $newNSMAPlink;
+    }
+
+    public function deleteLink($index) {
+        if (isset($this->remoteNsMapURLs[$index])) {
+            unset($this->remoteNsMapURLs[$index]);
+        }
+    }
+    
+    public function saveNewNSMapURLs() {
+        if ($this->remoteNsMapURLs) {
+            $this->upObj->setRemoteNSMapURLs($this->remoteNsMapURLs);
+        }
+    }
+
+    public function editNSMAPLinkRequests() {
+        if (isset($_REQUEST['add_nsmap_link']) && !empty($_REQUEST['new_nsmap_link'])) {
+            $newNSMAPLink = $_REQUEST['new_nsmap_link'];
+            $this->addNSMAPLink($newNSMAPLink);
+        }
+
+        if (isset($_POST['delete_nsmap_link']) && isset($_POST['selected_nsmap_link'])) {
+            $indexToDelete = (int) $_POST['selected_nsmap_link'];
+            $this->deleteNSMAPLink($indexToDelete);
+        }
+    }
+    public function showNSMAPlinksEditor() {
+        echo "<h4>NsMap links:</h4>\n";
+        echo "<ul>\n";
+        foreach ($this->remoteNsMapURLs as $key => $link) {
+            echo '<li><a href="' . $link . '">' . $link . "</a>\n";
+            echo '<form method="post" action="">';
+            echo '<input type="hidden" name="selected_nsmap_link" value="' . $key . '">';
+            echo '<input type="submit" name="delete_nsmap_link" value="Del">';
+            echo '</form>';
+            echo "</li>\n";
+        }
+        echo "</ul>\n<br/>";
+        echo "Add:";
+        echo '<form method="post" action="">';
+        echo '<input type="text" name="new_nsmap_link" placeholder="Enter Link ...nsmap.hashsig.zip" required>';
+        echo '<input type="submit" name="add_nsmap_link" value="Add">';
+        echo "</form>\n";
+    }
+    //  ---- END OF NSMAP LINKS EDITOR ---
     
     public function authCheck() {
         if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['passhash'])) {
@@ -401,5 +457,6 @@ if (!\defined('DYNO_FILE')) {
     $myObj->authCheck();
     $myObj->openPage();
     $myObj->run();
+    $myObj->showNSMAPlinksEditor();
     $myObj->closePage();
 }
