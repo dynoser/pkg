@@ -350,7 +350,10 @@ HTMLOPEN;
                     $shortFileName = \substr($fileFullName, $rootLen);
                     $hashHex = $act[1];
                     $act = $act[0];
-                    echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'> $shortFileName => $hashHex</li>\n";
+                    $compareLink = '?compare=' . self::base64Uencode($shortFileName) . '&hash=' . $hashHex;
+                    echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'>"
+                        . " <a href=\"$compareLink\">$shortFileName</a> => $hashHex</li>"
+                        . "\n";
                 }
                 echo "</ul>\n";
             }
@@ -359,6 +362,27 @@ HTMLOPEN;
             echo "</form>";
             echo '<H3><a href="?updateall=1">Update ALL</a></H3>';
         }
+    }
+    
+    /**
+     * Encode a string using the base64url encoding scheme
+     * 
+     * @param string $str
+     * @return string
+     */
+    public static function base64Uencode($str) {
+        $enc = \base64_encode($str);
+        return \rtrim(\strtr($enc, '+/', '-_'), '=');
+    }
+    
+    /**
+     * Decode a base64url encoded string
+     * 
+     * @param string $str
+     * @return string
+     */
+    public static function base64Udecode($str) {
+        return \base64_decode(\strtr($str, '-_', '+/'));
     }
 
     // --- BEGIN OF NSMAP LINKS EDITOR ---    
