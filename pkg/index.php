@@ -573,7 +573,7 @@ HTMLOPEN;
     //  ---- END OF NSMAP LINKS EDITOR ---
     
     public function authCheck() {
-        if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['passhash'])) {
+        if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['password'])) {
             $username = $_COOKIE['username'];
             $password = $_COOKIE['password'];
             if ($username && $password && !empty(self::$passArr[$username])) {
