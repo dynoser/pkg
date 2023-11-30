@@ -2,6 +2,8 @@
 namespace dynoser\webtools;
 
 use dynoser\autoload\AutoLoader;
+use Jfcherng\Diff\DiffHelper;
+use Jfcherng\Diff\Renderer\RendererConstant;
 
 class Pkg
 {
@@ -16,6 +18,8 @@ class Pkg
     public $rootDir = '';
     
     public array $remoteNsMapURLs = [];
+    
+    public bool $compareON = true;
 
     public function canRemoveNS($nameSpace) {
         $chk = strtr($nameSpace, '\\', '/');
@@ -50,6 +54,7 @@ class Pkg
             $nextChkDir = \rtrim(\dirname($chkDir, 2), '/\\') . '/vendor';
         } while (\strlen($nextChkDir) < \strlen($chkDir));
 
+        $devMode = false;
         if (\substr($myOwnDir, -7) === 'pkg/pkg') {
             if (\substr($myOwnDir, -22) === 'vendor/dynoser/pkg/pkg') {
                 // composer mode ON
@@ -58,7 +63,8 @@ class Pkg
                 $autoLoadFile = \constant('VENDOR_DIR') . '/dynoser/autoload/autoload.php';
             } else {
                 // developer mode ON
-                $autoLoadFile = \substr($myOwnDir, 0, -7) . 'autoload/autoload.php';
+                $devMode = true;
+                $autoLoadFile = \dirname($myOwnDir, 2) . '/autoload/autoload.php';
             }
     
             if (\is_file($autoLoadFile)) {
@@ -75,10 +81,15 @@ class Pkg
                 if (!defined('ROOT_DIR')) {
                     \define('ROOT_DIR', \dirname($myOwnDir));
                 }
-                foreach([
-                    \dirname(\constant('ROOT_DIR')) . '/nsmupdate/src',
-                    \constant('VENDOR_DIR') . '/dynoser/nsmupdate/src',
-                ] as $nsmupdDevDir) {
+
+                // pre-load dev.nsmapupdate pkg without autoloader
+                $nsmUpSrcArr = [];
+                if ($devMode) {
+                    $nsmUpSrcArr[] = \dirname($myOwnDir, 2) . '/nsmupdate/src';
+                }
+                $nsmUpSrcArr[] = \dirname(\constant('ROOT_DIR')) . '/nsmupdate/src';
+                $nsmUpSrcArr[] = \constant('VENDOR_DIR') . '/dynoser/nsmupdate/src';
+                foreach($nsmUpSrcArr as $nsmupdDevDir) {
                     if (\is_dir($nsmupdDevDir)) {
                         foreach(\scandir($nsmupdDevDir) as $fileShort) {
                             if ($fileShort[0] === '.') continue;
@@ -89,6 +100,8 @@ class Pkg
                 }
                 
                 require_once $autoLoadFile;
+            } else {
+                $devMode = false;
             }
         }
 
@@ -111,6 +124,11 @@ class Pkg
         $this->rootDir = \defined('ROOT_DIR') ? ROOT_DIR : \dirname($vendorDir);
         if (empty($chkFile) || !\defined('DYNO_FILE')) {
             die("Dynoser-autoloader not found, cannot continue (since this script is a dynoser-autoloader module)");
+        }
+        
+        // check comparer
+        if ($this->compareON) {
+            $this->compareON = AutoLoader::classExists('Jfcherng/Diff/Differ', true, false);
         }
 
         $this->updObj = new \dynoser\nsmupdate\UpdateByNSMaps(false, false);
@@ -160,13 +178,23 @@ HTMLOPEN;
     }
 
     public function run() {
+        // is it Compare link?
+        if (!empty($_REQUEST['compare']) && !empty($_REQUEST['hsfile'])) {
+            $compareShortFile = self::base64Udecode($_REQUEST['compare']);
+            $hashSigFileFull = $_REQUEST['hsfile'];
+            if ($hashSigFileFull && $compareShortFile) {
+                $this->compareShow($compareShortFile, $hashSigFileFull, $hashHex);
+            }
+        }
+        
+        // is it Remove cache?
         if (!empty($_REQUEST['removecache'])) {
             echo "<pre>Remove cache:\n";
             $this->updObj->removeCache();
             echo "</pre>";
         }
         
-        // ADD and REMOVE links in $this->nsMapURLsArr
+        //  is it ADD or REMOVE links in $this->nsMapURLsArr ?
         $this->editNSMAPLinkRequests();
 
         if (!empty($_REQUEST['install'])) {
@@ -350,10 +378,19 @@ HTMLOPEN;
                     $shortFileName = \substr($fileFullName, $rootLen);
                     $hashHex = $act[1];
                     $act = $act[0];
-                    $compareLink = '?compare=' . self::base64Uencode($shortFileName) . '&hash=' . $hashHex;
-                    echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'>"
-                        . " <a href=\"$compareLink\">$shortFileName</a> => $hashHex</li>"
-                        . "\n";
+                    if ($this->compareON) {
+                        $compareLink = '?compare=' . self::base64Uencode($shortFileName) . '&hsfile=' . $hashHex;
+                    }
+                    echo "<li>$act <input type='checkbox' name='selectedFiles[]' value='$hashHex'>";
+                    if ($this->compareON) {
+                        echo '<a href="' . $compareLink . '">';
+                    }
+                    echo $shortFileName;
+                    if ($this->compareON) {
+                        echo '</a>';
+                    }
+                    echo "=> $hashHex</li>";
+                    echo "\n";
                 }
                 echo "</ul>\n";
             }
@@ -362,6 +399,103 @@ HTMLOPEN;
             echo "</form>";
             echo '<H3><a href="?updateall=1">Update ALL</a></H3>';
         }
+    }
+    
+    public function compareShow($shortFile, $hashSigFileFull, $hashHex) {
+        if (!$this->compareON) {
+            die("Comparer not available");
+        }
+        // calculate full file name from short
+        $fullFile = $this->rootDir . $shortFile;
+        if (!is_file($fullFile)) {
+            die("Not found: $fullFile");
+        }
+        $oldStr = \file_get_contents($fullFile);
+        
+        $hs = new HashSigBase();
+        $result = $hs->getFilesByHashSig(
+            $hashSigFileFull,
+            null, //$saveToDir = null,
+            null, //$baseURLs = null,
+            true, //bool $doNotSaveFiles = false,
+            true, //bool $doNotOverWrite = false,
+            false, //bool $zipOnlyMode = false,
+            [$shortFile] //$onlyTheseFilesArr = null
+        );
+        $newStr = $result[$shortFile];
+        
+        // renderer class name:
+        //     Text renderers: Context, JsonText, Unified
+        //     HTML renderers: Combined, Inline, JsonHtml, SideBySide
+        $rendererName = 'SideBySide';
+
+        // the Diff class options
+        $differOptions = [
+            // show how many neighbor lines
+            // Differ::CONTEXT_ALL can be used to show the whole file
+            'context' => 3,
+            // ignore case difference
+            'ignoreCase' => false,
+            // ignore line ending difference
+            'ignoreLineEnding' => false,
+            // ignore whitespace difference
+            'ignoreWhitespace' => false,
+            // if the input sequence is too long, it will just gives up (especially for char-level diff)
+            'lengthLimit' => 2000,
+        ];
+
+        // the renderer class options
+        $rendererOptions = [
+            // how detailed the rendered HTML in-line diff is? (none, line, word, char)
+            'detailLevel' => 'line',
+            // renderer language: eng, cht, chs, jpn, ...
+            // or an array which has the same keys with a language file
+            // check the "Custom Language" section in the readme for more advanced usage
+            'language' => 'eng',
+            // show line numbers in HTML renderers
+            'lineNumbers' => true,
+            // show a separator between different diff hunks in HTML renderers
+            'separateBlock' => true,
+            // show the (table) header
+            'showHeader' => true,
+            // the frontend HTML could use CSS "white-space: pre;" to visualize consecutive whitespaces
+            // but if you want to visualize them in the backend with "&nbsp;", you can set this to true
+            'spacesToNbsp' => false,
+            // HTML renderer tab width (negative = do not convert into spaces)
+            'tabSize' => 4,
+            // this option is currently only for the Combined renderer.
+            // it determines whether a replace-type block should be merged or not
+            // depending on the content changed ratio, which values between 0 and 1.
+            'mergeThreshold' => 0.8,
+            // this option is currently only for the Unified and the Context renderers.
+            // RendererConstant::CLI_COLOR_AUTO = colorize the output if possible (default)
+            // RendererConstant::CLI_COLOR_ENABLE = force to colorize the output
+            // RendererConstant::CLI_COLOR_DISABLE = force not to colorize the output
+            'cliColorization' => RendererConstant::CLI_COLOR_AUTO,
+            // this option is currently only for the Json renderer.
+            // internally, ops (tags) are all int type but this is not good for human reading.
+            // set this to "true" to convert them into string form before outputting.
+            'outputTagAsString' => false,
+            // this option is currently only for the Json renderer.
+            // it controls how the output JSON is formatted.
+            // see available options on https://www.php.net/manual/en/function.json-encode.php
+            'jsonEncodeFlags' => \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE,
+            // this option is currently effective when the "detailLevel" is "word"
+            // characters listed in this array can be used to make diff segments into a whole
+            // for example, making "<del>good</del>-<del>looking</del>" into "<del>good-looking</del>"
+            // this should bring better readability but set this to empty array if you do not want it
+            'wordGlues' => [' ', '-'],
+            // change this value to a string as the returned diff if the two input strings are identical
+            'resultForIdenticals' => null,
+            // extra HTML classes added to the DOM of the diff container
+            'wrapperClasses' => ['diff-wrapper'],
+        ];
+        //$htmlRenderer = RendererFactory::make('Inline', $rendererOptions);
+
+        // one-line simply compare two files
+        //$result = DiffHelper::calculateFiles($oldFile, $newFile, $rendererName, $differOptions, $rendererOptions);
+        $result   = DiffHelper::calculate($oldStr, $newStr, $rendererName, $differOptions, $rendererOptions);
+        echo $result;
     }
     
     /**
@@ -441,12 +575,20 @@ HTMLOPEN;
     public function authCheck() {
         if (!$this->passIsOk && !empty($_COOKIE['username']) && !empty($_COOKIE['passhash'])) {
             $username = $_COOKIE['username'];
-            $passhash = $_COOKIE['passhash'];
-            if ($username && $passhash && !empty(self::$passArr[$username])) {
-                $this->passIsOk = ($passhash === self::$passArr[$username]);
+            $password = $_COOKIE['password'];
+            if ($username && $password && !empty(self::$passArr[$username])) {
+                $this->passIsOk = (\hash('sha256', $password) === self::$passArr[$username]);
             }
         }
-        if (!$this->passIsOk && ($_SERVER["REQUEST_METHOD"] === "POST")) {
+        if (!$this->passIsOk && !empty($GLOBALS['argv'][2])) {
+            global $argv;
+            $username = $argv[1];
+            $password = $argv[2];
+            if ($username && $password && !empty(self::$passArr[$username])) {
+                $this->passIsOk = (\hash('sha256', $password) === self::$passArr[$username]);
+            }            
+        }
+        if (!$this->passIsOk && !empty($_SERVER["REQUEST_METHOD"]) && ($_SERVER["REQUEST_METHOD"] === "POST")) {
             $username = $_POST['username'] ?? '';
             $enteredPassword = $_POST['password'] ?? '';
             if ($username && $enteredPassword && !empty(self::$passArr[$username])) {
@@ -454,7 +596,7 @@ HTMLOPEN;
                 $this->passIsOk = ($enteredPasswordHash === self::$passArr[$username]);
                 if ($this->passIsOk) {
                     \setcookie('username', $username, time() + 3600, "/");
-                    \setcookie('passhash', $enteredPasswordHash, time() + 3600, "/");
+                    \setcookie('password', $enteredPassword, time() + 3600, "/");
                 }
             }
         }
